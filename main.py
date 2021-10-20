@@ -6,11 +6,13 @@ import time
 
 import requests as requests
 from bs4 import BeautifulSoup
-from telegram import Update, ParseMode
-from emoji import emojize
-from telegram.ext import Updater, CommandHandler, CallbackContext
 
-load_dotenv()
+from telegram import ParseMode
+from emoji import emojize
+from telegram.ext import Updater, CallbackContext
+
+if os.path.exists(".env"):
+    load_dotenv()
 
 MAS_INFORMACION = emojize(':plus: Más información')
 NEWS_CHAT_ID = os.getenv("NEWS_CHAT_ID")
@@ -69,27 +71,26 @@ class News:
             json.dump(dict_news, f, indent=4)
 
 
-def start(update: Update, _: CallbackContext):
-    update.effective_chat.send_message("¡Hola!")
-
-
 def main():
     updater = Updater(token=os.getenv('BOT_TOKEN'), use_context=True)
 
-    dispatcher = updater.dispatcher
+    bot = updater.bot.get_me()
 
-    start_handler = CommandHandler('start', start)
-    dispatcher.add_handler(start_handler)
+    print("Iniciando " + bot.full_name + " (@" + bot.username + ")")
 
     news = News()
     # Cada 1 hs
     updater.job_queue.run_repeating(news.send_news, 3600, first=10)
 
+    print("Iniciado.")
     updater.start_polling()
 
     updater.idle()
 
+    print("Guardando...")
     news.save()
+
+    print("Finalizado.")
 
 
 if __name__ == "__main__":
