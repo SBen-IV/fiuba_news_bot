@@ -1,0 +1,9 @@
+# env
+venv
+.env
+
+# IDE
+.idea
+
+# Otros
+test.py
