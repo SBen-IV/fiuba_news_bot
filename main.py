@@ -42,6 +42,8 @@ class News:
         diff.extend(self.__news[:MAX_NEWS-self.__n_news])
         self.__news = diff
 
+        print("{} noticias nuevas.".format(self.__n_news))
+
     def send_news(self, context: CallbackContext):
         self.update()
 
