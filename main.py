@@ -1,18 +1,24 @@
 import json
+import logging
 
+import pytz
 from dotenv import load_dotenv
 import os
 import time
+import datetime as dtm
 
 import requests as requests
 from bs4 import BeautifulSoup
 
 from telegram import ParseMode
 from emoji import emojize
-from telegram.ext import Updater, CallbackContext
+from telegram.ext import Updater, CallbackContext, Defaults
 
 if os.path.exists(".env"):
     load_dotenv()
+
+logging.basicConfig(format='[%(asctime)s] [%(levelname)s] %(message)s', level=logging.INFO)
+LOGGER = logging.getLogger(__name__)
 
 MAS_INFORMACION = emojize(':plus: Más información')
 NEWS_CHAT_ID = os.getenv("NEWS_CHAT_ID")
@@ -42,7 +48,7 @@ class News:
         diff.extend(self.__news[:MAX_NEWS-self.__n_news])
         self.__news = diff
 
-        print("{} noticias nuevas.".format(self.__n_news))
+        LOGGER.info("{} noticias nuevas.".format(self.__n_news))
 
     def send_news(self, context: CallbackContext):
         self.update()
@@ -61,7 +67,7 @@ class News:
             message = "<b>" + title + "</b>" + "\n\n" + result.get_text() + "\n\n" + \
                       "<a href= \"" + link + "\">" + MAS_INFORMACION + "</a>\n"
 
-            msg = context.bot.send_message(chat_id=NEWS_CHAT_ID, text=message, parse_mode=ParseMode.HTML)
+            msg = context.bot.send_message(chat_id=NEWS_CHAT_ID, text=message)
 
             context.bot.pin_chat_message(chat_id=NEWS_CHAT_ID, message_id=msg.message_id)
 
@@ -74,25 +80,29 @@ class News:
 
 
 def main():
-    updater = Updater(token=os.getenv('BOT_TOKEN'), use_context=True)
+    defaults = Defaults(parse_mode=ParseMode.HTML, tzinfo=pytz.timezone('America/Argentina/Buenos_Aires'))
+
+    updater = Updater(token=os.getenv('BOT_TOKEN'), use_context=True, defaults=defaults)
 
     bot = updater.bot.get_me()
 
-    print("Iniciando " + bot.full_name + " (@" + bot.username + ")")
+    LOGGER.info("Iniciando " + bot.full_name + " (@" + bot.username + ")")
 
     news = News()
     # Cada 1 hs
     updater.job_queue.run_repeating(news.send_news, 3600, first=10)
+    try:
+        updater.start_polling()
+        LOGGER.info("Iniciado.")
 
-    print("Iniciado.")
-    updater.start_polling()
+        updater.idle()
+    except Exception as e:
+        LOGGER.error(e.__cause__)
 
-    updater.idle()
-
-    print("Guardando...")
+    LOGGER.info("Guardando...")
     news.save()
 
-    print("Finalizado.")
+    LOGGER.info("Finalizado.")
 
 
 if __name__ == "__main__":
