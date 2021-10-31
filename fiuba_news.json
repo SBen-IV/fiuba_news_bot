@@ -1,5 +1,7 @@
 {
     "news": [
+        "/noticias/premian-a-alumnos-de-ing-civil",
+        "/noticias/campana-donacion-sangre-30-10",
         "/noticias/webinar-en-ingenieria-vocacional",
         "/noticias/adquisicion-de-materiales",
         "/noticias/charla-sobre-corrosion",
@@ -13,8 +15,6 @@
         "/noticias/webinar-materiales-en-ing-mecanica-aero-eutecticos",
         "/noticias/para-doctores-y-doctoras-egresadas-en-fiuba",
         "/noticias/aplicaciones-radiacion-sincotron-en-analisis-de-materiales",
-        "/noticias/reunion-con-departamentos-docentes",
-        "/noticias/ciencia-tecnologia-y-produccion",
-        "/noticias/premian-a-egresado-de-la-fiuba"
+        "/noticias/reunion-con-departamentos-docentes"
     ]
 }

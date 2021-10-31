@@ -1,108 +1,74 @@
-import json
-import logging
-
 import pytz
 from dotenv import load_dotenv
 import os
-import time
-import datetime as dtm
-
-import requests as requests
-from bs4 import BeautifulSoup
-
-from telegram import ParseMode
-from emoji import emojize
-from telegram.ext import Updater, CallbackContext, Defaults
 
 if os.path.exists(".env"):
     load_dotenv()
 
-logging.basicConfig(format='[%(asctime)s] [%(levelname)s] %(message)s', level=logging.INFO)
-LOGGER = logging.getLogger(__name__)
+import datetime as dtm
+from news import News
+from error_handler import logger, error_handler
 
-MAS_INFORMACION = emojize(':plus: Más información')
-NEWS_CHAT_ID = os.getenv("NEWS_CHAT_ID")
+from telegram import ParseMode
+from telegram.ext import Updater, Defaults, CallbackContext, Job, Dispatcher
 
-MAIN_LINK = 'https://fi.uba.ar'
-FIUBA_NEWS_FILE = "fiuba_news.json"
-NEWS_KEY = "news"
-MAX_NEWS = 16
+FIRST_REPEATING = dtm.time(7, 0, 0)
+LAST_REPEATING = dtm.time(23, 0, 0)
+TIME_DAILY_SEND_NEWS = dtm.time(6, 0, 0)
+TIME_DAILY_SAVE_NEWS = dtm.time(1, 0, 0)
+# Cada 30 minutos
+INTERVAL_REPEATING = 1800
+TIME_ZONE = pytz.timezone('America/Argentina/Buenos_Aires')
 
 
-class News:
-    def __init__(self):
-        with open(FIUBA_NEWS_FILE, "r", encoding='UTF-8') as f:
-            self.__news = json.load(f)[NEWS_KEY]
+def set_send_news_job(context: CallbackContext) -> None:
+    """
+    Establece un job para obtener las noticias del día de la página.
+    """
+    context.job_queue.run_repeating(context.job.context.send_news, INTERVAL_REPEATING, first=FIRST_REPEATING,
+                                    last=LAST_REPEATING)
+    logger.info("Programado send_news de hoy.")
 
-        self.__n_news = 0
 
-    def update(self):
-        page = requests.get('https://fi.uba.ar/noticias/pagina/1')
-        soup = BeautifulSoup(page.content, 'html.parser')
+def run_job(daily_job: Job, dispatcher: Dispatcher) -> None:
+    """
+    Corre daily_job en caso que se haya ejecutado dentro de la hora de TIME_DAILY_SEND_NEWS y LAST_REPEATING.
+    """
+    now = dtm.datetime.now(TIME_ZONE)
 
-        new_news = list(map(lambda x: x.get('href'), soup.select(".noticia > a")))
-
-        diff = [n for n in new_news if n not in self.__news]
-
-        self.__n_news = len(diff)
-        diff.extend(self.__news[:MAX_NEWS-self.__n_news])
-        self.__news = diff
-
-        LOGGER.info("{} noticias nuevas.".format(self.__n_news))
-
-    def send_news(self, context: CallbackContext):
-        self.update()
-
-        for n in reversed(self.__news[:self.__n_news]):
-            link = MAIN_LINK + n
-            news_page = requests.get(link)
-
-            soup = BeautifulSoup(news_page.content, 'html.parser')
-
-            result = soup.find('div',
-                               class_="font-light text-lg leading-relaxed border-b border-border-soft-color pb-8 mb-6")
-
-            title = soup.title.get_text()[8:]
-
-            message = "<b>" + title + "</b>" + "\n\n" + result.get_text() + "\n\n" + \
-                      "<a href= \"" + link + "\">" + MAS_INFORMACION + "</a>\n"
-
-            msg = context.bot.send_message(chat_id=NEWS_CHAT_ID, text=message)
-
-            context.bot.pin_chat_message(chat_id=NEWS_CHAT_ID, message_id=msg.message_id)
-
-            time.sleep(5)
-
-    def save(self):
-        dict_news = {"news": self.__news}
-        with open(FIUBA_NEWS_FILE, "w", encoding='UTF-8') as f:
-            json.dump(dict_news, f, indent=4)
+    if TIME_DAILY_SEND_NEWS.hour < now.hour < LAST_REPEATING.hour:
+        daily_job.run(dispatcher)
 
 
 def main():
-    defaults = Defaults(parse_mode=ParseMode.HTML, tzinfo=pytz.timezone('America/Argentina/Buenos_Aires'))
+    defaults = Defaults(parse_mode=ParseMode.HTML, tzinfo=TIME_ZONE)
 
     updater = Updater(token=os.getenv('BOT_TOKEN'), use_context=True, defaults=defaults)
 
     bot = updater.bot.get_me()
 
-    LOGGER.info("Iniciando " + bot.full_name + " (@" + bot.username + ")")
+    logger.info("Iniciando " + bot.full_name + " (@" + bot.username + ")")
 
     news = News()
-    # Cada 1 hs
-    updater.job_queue.run_repeating(news.send_news, 3600, first=10)
+
+    daily_job = updater.job_queue.run_daily(set_send_news_job, TIME_DAILY_SEND_NEWS, context=news)
+    updater.job_queue.run_daily(news.save, TIME_DAILY_SAVE_NEWS)
+
+    updater.dispatcher.add_error_handler(error_handler)
     try:
         updater.start_polling()
-        LOGGER.info("Iniciado.")
+        logger.info("Iniciado.")
+
+        run_job(daily_job, updater.dispatcher)
 
         updater.idle()
     except Exception as e:
-        LOGGER.error(e.__cause__)
+        logger.error(e.__cause__)
 
-    LOGGER.info("Guardando...")
+    logger.info("Guardando...")
     news.save()
 
-    LOGGER.info("Finalizado.")
+    logger.info("Finalizado.")
 
 
 if __name__ == "__main__":
