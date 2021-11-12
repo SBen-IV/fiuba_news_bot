@@ -9,13 +9,15 @@ from error_handler import logger
 
 from telegram.ext import CallbackContext
 
-MAS_INFORMACION = emojize(':plus: Más información')
+MAS_INFORMACION = emojize(":information: Más información")
 NEWS_CHAT_ID = os.getenv("NEWS_CHAT_ID")
 
-MAIN_LINK = 'https://fi.uba.ar'
+MAIN_LINK = "https://fi.uba.ar"
+NEWS_LINK = MAIN_LINK + "/noticias/pagina/1"
 FIUBA_NEWS_FILE = "fiuba_news.json"
 NEWS_KEY = "news"
 MAX_NEWS = 16
+LENGTH_TITLE = 8
 
 
 class News:
@@ -32,7 +34,7 @@ class News:
         """
         Actualiza las noticias de la página.
         """
-        page = requests.get('https://fi.uba.ar/noticias/pagina/1')
+        page = requests.get(NEWS_LINK)
         soup = BeautifulSoup(page.content, 'html.parser')
 
         new_news = list(map(lambda x: x.get('href'), soup.select(".noticia > a")))
@@ -60,7 +62,7 @@ class News:
             result = soup.find('div',
                                class_="font-light text-lg leading-relaxed border-b border-border-soft-color pb-8 mb-6")
 
-            title = soup.title.get_text()[8:]
+            title = soup.title.get_text()[LENGTH_TITLE:]
 
             message = "<b>" + title + "</b>" + "\n\n" + result.get_text() + "\n\n" + \
                       "<a href= \"" + link + "\">" + MAS_INFORMACION + "</a>\n"
