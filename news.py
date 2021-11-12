@@ -18,6 +18,7 @@ FIUBA_NEWS_FILE = "fiuba_news.json"
 NEWS_KEY = "news"
 MAX_NEWS = 16
 LENGTH_TITLE = 8
+DIV_CLASS = "font-light text-lg leading-relaxed border-b border-border-soft-color pb-8 mb-6"
 
 
 class News:
@@ -59,12 +60,12 @@ class News:
 
             soup = BeautifulSoup(news_page.content, 'html.parser')
 
-            result = soup.find('div',
-                               class_="font-light text-lg leading-relaxed border-b border-border-soft-color pb-8 mb-6")
+            result = soup.find('div', class_=DIV_CLASS)
+            body = result.get_text().replace('\n', '')
 
             title = soup.title.get_text()[LENGTH_TITLE:]
 
-            message = "<b>" + title + "</b>" + "\n\n" + result.get_text() + "\n\n" + \
+            message = "<b>" + title + "</b>" + "\n\n" + body + "\n\n" + \
                       "<a href= \"" + link + "\">" + MAS_INFORMACION + "</a>\n"
 
             msg = context.bot.send_message(chat_id=NEWS_CHAT_ID, text=message)
