@@ -13,11 +13,11 @@ from telegram import ParseMode
 from telegram.ext import Updater, Defaults, CallbackContext, Job, Dispatcher
 
 FIRST_REPEATING = dtm.time(7, 0, 0)
-LAST_REPEATING = dtm.time(23, 0, 0)
+LAST_REPEATING = dtm.time(23, 5, 0)
 TIME_DAILY_SEND_NEWS = dtm.time(6, 0, 0)
 TIME_DAILY_SAVE_NEWS = dtm.time(1, 0, 0)
-# Cada 30 minutos
-INTERVAL_REPEATING = 1800
+# Minutos * segundos
+INTERVAL_REPEATING = 60*60
 TIME_ZONE = pytz.timezone('America/Argentina/Buenos_Aires')
 
 
