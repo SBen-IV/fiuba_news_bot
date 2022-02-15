@@ -68,9 +68,7 @@ class News:
             message = "<b>" + title + "</b>" + "\n\n" + body + "\n\n" + \
                       "<a href= \"" + link + "\">" + MAS_INFORMACION + "</a>\n"
 
-            msg = context.bot.send_message(chat_id=NEWS_CHAT_ID, text=message)
-
-            context.bot.pin_chat_message(chat_id=NEWS_CHAT_ID, message_id=msg.message_id)
+            context.bot.send_message(chat_id=NEWS_CHAT_ID, text=message)
 
             time.sleep(60)
 

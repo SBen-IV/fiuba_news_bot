@@ -8,3 +8,4 @@ venv
 # Otros
 test.py
 __pycache__/
+pyvenv.cfg
