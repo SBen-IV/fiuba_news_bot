@@ -1,10 +1,12 @@
 import time
 
 from emoji import emojize
-import json
 import requests as requests
 from bs4 import BeautifulSoup
 import os
+
+from telegram import Update, Chat, ChatAction
+
 from error_handler import logger
 
 from telegram.ext import CallbackContext
@@ -25,36 +27,23 @@ class News:
     """
     Clase encargada de obtener las noticias de la página de fiuba y enviarlas a un cierto canal de Telegram.
     """
-    def __init__(self):
-        with open(FIUBA_NEWS_FILE, "r", encoding='UTF-8') as f:
-            self.__news = json.load(f)[NEWS_KEY]
-
-        self.__n_news = 0
-
-    def update(self) -> None:
+    def get_all_news_from_site(self) -> list:
         """
-        Actualiza las noticias de la página.
+        Obtiene las noticias de la página.
         """
         page = requests.get(NEWS_LINK)
         soup = BeautifulSoup(page.content, 'html.parser')
 
-        new_news = list(map(lambda x: x.get('href'), soup.select(".noticia > a")))
+        return list(map(lambda x: x.get('href'), soup.select(".noticia > a")))
 
-        diff = [n for n in new_news if n not in self.__news]
-
-        self.__n_news = len(diff)
-        diff.extend(self.__news[:MAX_NEWS-self.__n_news])
-        self.__news = diff
-
-        logger.info("{} noticias nuevas.".format(self.__n_news))
-
-    def send_news(self, context: CallbackContext) -> None:
+    def send_news(self, chat: Chat, n_news: int) -> None:
         """
         Envía las noticias nuevas que hayan a un canal de Telegram.
         """
-        self.update()
+        news = self.get_all_news_from_site()
 
-        for n in reversed(self.__news[:self.__n_news]):
+        for n in reversed(news[:n_news]):
+            chat.send_chat_action(ChatAction.TYPING)
             link = MAIN_LINK + n
             news_page = requests.get(link)
 
@@ -68,16 +57,20 @@ class News:
             message = "<b>" + title + "</b>" + "\n\n" + body + "\n\n" + \
                       "<a href= \"" + link + "\">" + MAS_INFORMACION + "</a>\n"
 
-            context.bot.send_message(chat_id=NEWS_CHAT_ID, text=message)
+            chat.send_message(text=message)
 
-            time.sleep(60)
+            time.sleep(3)
 
-    def save(self, _: CallbackContext = None) -> None:
-        """
-        Guarda las noticias en un archivo json
-        """
-        dict_news = {"news": self.__news}
-        with open(FIUBA_NEWS_FILE, "w", encoding='UTF-8') as f:
-            json.dump(dict_news, f, indent=4)
-
-        logger.info("Noticias guardadas.")
+    def get(self, update: Update, context: CallbackContext) -> None:
+        try:
+            n_news = int(context.args[0])
+            if n_news <= 0:
+                update.effective_chat.send_message("No puedo enviar una cantidad negativa de noticias.")
+            elif n_news > MAX_NEWS:
+                update.effective_chat.send_message("No puedo enviar más de " + str(MAX_NEWS) + " noticias.")
+            else:
+                self.send_news(update.effective_chat, n_news)
+        except IndexError:
+            update.effective_chat.send_message("Uso: /get [cantidad de noticias]")
+        except ValueError:
+            update.effective_chat.send_message("Uso: /get [entero positivo]")
