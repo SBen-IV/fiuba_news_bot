@@ -33,6 +33,7 @@ def main():
     news = News()
 
     updater.dispatcher.add_handler(CommandHandler('get', news.get, Filters.chat_type.groups))
+    updater.dispatcher.add_handler(CommandHandler('status', news.status, Filters.chat_type.private))
     updater.dispatcher.add_error_handler(error_handler)
 
     try:

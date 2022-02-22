@@ -74,3 +74,7 @@ class News:
             update.effective_chat.send_message("Uso: /get [cantidad de noticias]")
         except ValueError:
             update.effective_chat.send_message("Uso: /get [entero positivo]")
+
+    def status(self, update: Update, _: CallbackContext) -> None:
+        chat = update.effective_chat
+        chat.send_message("Esperando para enviar noticias.")
