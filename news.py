@@ -36,6 +36,21 @@ class News:
 
         return list(map(lambda x: x.get('href'), soup.select(".noticia > a")))
 
+    def get_message(self, link: str) -> str:
+        news_page = requests.get(link)
+
+        soup = BeautifulSoup(news_page.content, 'html.parser')
+
+        result = soup.find('div', class_=DIV_CLASS)
+        body = result.get_text().replace('\n', '')
+
+        title = soup.title.get_text()[LENGTH_TITLE:]
+
+        message = "<b>" + title + "</b>" + "\n\n" + body + "\n\n" + \
+                  "<a href= \"" + link + "\">" + MAS_INFORMACION + "</a>\n"
+
+        return message
+
     def send_news(self, chat: Chat, n_news: int) -> None:
         """
         Envía las noticias nuevas que hayan a un canal de Telegram.
@@ -45,17 +60,8 @@ class News:
         for n in reversed(news[:n_news]):
             chat.send_chat_action(ChatAction.TYPING)
             link = MAIN_LINK + n
-            news_page = requests.get(link)
 
-            soup = BeautifulSoup(news_page.content, 'html.parser')
-
-            result = soup.find('div', class_=DIV_CLASS)
-            body = result.get_text().replace('\n', '')
-
-            title = soup.title.get_text()[LENGTH_TITLE:]
-
-            message = "<b>" + title + "</b>" + "\n\n" + body + "\n\n" + \
-                      "<a href= \"" + link + "\">" + MAS_INFORMACION + "</a>\n"
+            message = self.get_message(link)
 
             chat.send_message(text=message)
 
@@ -74,6 +80,20 @@ class News:
             update.effective_chat.send_message("Uso: /get [cantidad de noticias]")
         except ValueError:
             update.effective_chat.send_message("Uso: /get [entero positivo]")
+
+    def get_archivo(self, update: Update, _: CallbackContext) -> None:
+        pass
+
+    def get_from(self, update: Update, context: CallbackContext) -> None:
+        message = "Uso: /getContent [link]"
+
+        if len(context.args) >= 1:
+            if context.args[0].startswith("http://") or context.args[0].startswith("https://"):
+                message = self.get_message(context.args[0])
+            else:
+                message = self.get_message("https://" + context.args[0])
+
+        update.effective_chat.send_message(message)
 
     def status(self, update: Update, _: CallbackContext) -> None:
         chat = update.effective_chat
