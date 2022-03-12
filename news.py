@@ -1,3 +1,4 @@
+import datetime
 import time
 
 from emoji import emojize
@@ -16,6 +17,7 @@ NEWS_CHAT_ID = os.getenv("NEWS_CHAT_ID")
 
 MAIN_LINK = "https://fi.uba.ar"
 NEWS_LINK = MAIN_LINK + "/noticias/pagina/1"
+ARCHIVOS_LINK = MAIN_LINK + "/noticias/archivo/{year}/{month}"
 FIUBA_NEWS_FILE = "fiuba_news.json"
 NEWS_KEY = "news"
 MAX_NEWS = 16
@@ -27,11 +29,11 @@ class News:
     """
     Clase encargada de obtener las noticias de la página de fiuba y enviarlas a un cierto canal de Telegram.
     """
-    def get_all_news_from_site(self) -> list:
+    def get_all_news_from_site(self, site) -> list:
         """
         Obtiene las noticias de la página.
         """
-        page = requests.get(NEWS_LINK)
+        page = requests.get(site)
         soup = BeautifulSoup(page.content, 'html.parser')
 
         return list(map(lambda x: x.get('href'), soup.select(".noticia > a")))
@@ -51,11 +53,11 @@ class News:
 
         return message
 
-    def send_news(self, chat: Chat, n_news: int) -> None:
+    def send_news(self, chat: Chat, n_news: int, site: str) -> None:
         """
         Envía las noticias nuevas que hayan a un canal de Telegram.
         """
-        news = self.get_all_news_from_site()
+        news = self.get_all_news_from_site(site)
 
         for n in reversed(news[:n_news]):
             chat.send_chat_action(ChatAction.TYPING)
@@ -67,7 +69,7 @@ class News:
 
             time.sleep(3)
 
-    def get(self, update: Update, context: CallbackContext) -> None:
+    def send_message(self, update: Update, context: CallbackContext, link: str, command: str) -> None:
         try:
             n_news = int(context.args[0])
             if n_news <= 0:
@@ -75,14 +77,18 @@ class News:
             elif n_news > MAX_NEWS:
                 update.effective_chat.send_message("No puedo enviar más de " + str(MAX_NEWS) + " noticias.")
             else:
-                self.send_news(update.effective_chat, n_news)
+                self.send_news(update.effective_chat, n_news, link)
         except IndexError:
-            update.effective_chat.send_message("Uso: /get [cantidad de noticias]")
+            update.effective_chat.send_message("Uso: {command} [cantidad de noticias]".format(command=command))
         except ValueError:
-            update.effective_chat.send_message("Uso: /get [entero positivo]")
+            update.effective_chat.send_message("Uso: {command} [entero positivo]".format(command=command))
 
-    def get_archivo(self, update: Update, _: CallbackContext) -> None:
-        pass
+    def get(self, update: Update, context: CallbackContext) -> None:
+        self.send_message(update, context, NEWS_LINK, "/get")
+
+    def get_archivo(self, update: Update, context: CallbackContext) -> None:
+        month, year = datetime.date.today().month, datetime.date.today().year
+        self.send_message(update, context, ARCHIVOS_LINK.format(month=month, year=year), "/archivos")
 
     def get_from(self, update: Update, context: CallbackContext) -> None:
         message = "Uso: /getContent [link]"
