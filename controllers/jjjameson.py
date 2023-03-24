@@ -9,6 +9,8 @@ class JJJameson:
     def __init__(self, fiuba_web: FiubaWeb, imprenta: Imprenta):
         self.fiuba_web = fiuba_web
         self.imprenta = imprenta
+        self.noticias_automaticas = False
+        self.job = None
         self.logger = logging.getLogger(__class__.__name__)
 
     def conseguir_noticias(self, update: Update, context: CallbackContext):
@@ -28,3 +30,25 @@ class JJJameson:
         except ValueError:
             self.logger.warn("Cantidad de noticias no es numero {arg}".format(arg=context.args[0]))
             raise CantidadNoticiasNoEsNumeroException(arg=context.args[0])
+
+    def activar_noticias_automaticas(self, update: Update, context: CallbackContext):
+        if self.noticias_automaticas == False:
+            self.job = context.job_queue.run_repeating(self.conseguir_noticias_automatico, 60)
+            self.noticias_automaticas = True
+            self.logger.info("Se activaron las noticias automaticas.")
+            update.effective_chat.send_message("Se activaron las noticias automaticas.")
+        else:
+            update.effective_chat.send_message("Las noticias automaticas ya estan activadas.")
+            
+
+    def desactivar_noticias_automaticas(self, update: Update, context: CallbackContext):
+        if self.noticias_automaticas == True:
+            self.job.schedule_removal()
+            self.noticias_automaticas = False
+            self.logger.info("Se desactivaron las noticias automaticas.")
+            update.effective_chat.send_message("Se desactivaron las noticias automaticas.")
+        else:
+            update.effective_chat.send_message("Las noticias automaticas no estan activadas.")
+
+    def conseguir_noticias_automatico(self, context: CallbackContext):
+        pass

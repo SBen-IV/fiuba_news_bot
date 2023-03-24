@@ -21,6 +21,8 @@ def main():
     jameson = JJJameson(Silk(), ThreatsAndMenaces())
 
     updater.dispatcher.add_handler(CommandHandler('noticias', jameson.conseguir_noticias, Filters.chat_type.groups))
+    updater.dispatcher.add_handler(CommandHandler('empezar', jameson.activar_noticias_automaticas, Filters.chat_type.groups))
+    updater.dispatcher.add_handler(CommandHandler('terminar', jameson.desactivar_noticias_automaticas, Filters.chat_type.groups))
     updater.dispatcher.add_error_handler(error_handler)
 
     try:
