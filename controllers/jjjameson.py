@@ -1,9 +1,11 @@
 from telegram import Update
 from telegram.ext import CallbackContext
+from connectors.fiuba_web import FiubaWeb
+from view.imprenta import Imprenta
 
 
 class JJJameson:
-    def __init__(self, fiuba_web, imprenta):
+    def __init__(self, fiuba_web: FiubaWeb, imprenta: Imprenta):
         self.fiuba_web = fiuba_web
         self.imprenta = imprenta
 

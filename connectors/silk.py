@@ -7,10 +7,10 @@ from entities.noticia import Noticia
 DOMINIO = "https://fi.uba.ar"
 LINK_NOTICIAS = DOMINIO + "/noticias/pagina/1"
 DIV_CLASS = "font-light text-lg leading-relaxed border-b border-border-soft-color pb-8 mb-6"
-LENGTH_TITLE = 8
+INICIO_TITULO = 8
 
 class Silk(FiubaWeb):
-    def obtener_noticias(self) -> list:
+    def obtener_noticias(self,  n: int = 1) -> list:
         page = requests.get(LINK_NOTICIAS)
         soup = BeautifulSoup(page.content, 'html.parser')
 
@@ -18,12 +18,12 @@ class Silk(FiubaWeb):
 
         noticias = []
 
-        for uri in uris_noticias[:1]:
+        for uri in uris_noticias[:n]:
             noticias.append(self.obtener_noticia(uri))
 
         return noticias
     
-    def obtener_noticia(self, uri) -> Noticia:
+    def obtener_noticia(self, uri: str) -> Noticia:
         url = DOMINIO + uri
         print("request a " + url)
         pagina = requests.get(url)
@@ -32,6 +32,6 @@ class Silk(FiubaWeb):
         resultado = soup.find('div', class_=DIV_CLASS)
         descripcion = resultado.get_text().replace('\n', '')
 
-        titulo = soup.title.get_text()[LENGTH_TITLE:]
+        titulo = soup.title.get_text()[INICIO_TITULO:]
 
         return Noticia(titulo, descripcion, url)
