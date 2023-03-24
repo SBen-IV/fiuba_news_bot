@@ -2,7 +2,7 @@ import requests as requests
 from bs4 import BeautifulSoup
 import logging
 
-from news import News
+from noticia import Noticia
 
 DOMINIO = "https://fi.uba.ar"
 LINK_NOTICIAS = DOMINIO + "/noticias/pagina/1"
@@ -23,9 +23,10 @@ class FiubaWeb:
 
         return noticias
     
-    def obtener_noticia(self, uri) -> News:
-        print("request a " + DOMINIO + uri)
-        pagina = requests.get(DOMINIO + uri)
+    def obtener_noticia(self, uri) -> Noticia:
+        url = DOMINIO + uri
+        print("request a " + url)
+        pagina = requests.get(url)
         soup = BeautifulSoup(pagina.content, 'html.parser')
 
         resultado = soup.find('div', class_=DIV_CLASS)
@@ -33,4 +34,4 @@ class FiubaWeb:
 
         titulo = soup.title.get_text()[LENGTH_TITLE:]
 
-        return News(titulo=titulo, descripcion=descripcion, url=DOMINIO + uri)
+        return Noticia(titulo, descripcion, url)

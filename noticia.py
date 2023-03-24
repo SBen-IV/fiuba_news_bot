@@ -1,4 +1,4 @@
-class News:
+class Noticia:
     def __init__(self, titulo, descripcion, url):
         self.titulo = titulo
         self.descripcion = descripcion
