@@ -2,7 +2,7 @@ import requests as requests
 from bs4 import BeautifulSoup
 import logging
 
-from noticia import Noticia
+from entities.noticia import Noticia
 
 DOMINIO = "https://fi.uba.ar"
 LINK_NOTICIAS = DOMINIO + "/noticias/pagina/1"

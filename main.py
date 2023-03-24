@@ -1,7 +1,7 @@
 import os
-from jjjameson import JJJameson
-from fiuba_web import FiubaWeb
-from clarin import Clarin
+from controllers.jjjameson import JJJameson
+from connectors.fiuba_web import FiubaWeb
+from view.clarin import Clarin
 
 from dotenv import load_dotenv
 
@@ -17,9 +17,9 @@ def main():
 
     updater = Updater(token=os.getenv('BOT_TOKEN'), use_context=True, defaults=defaults)
 
-    peter = JJJameson(FiubaWeb(), Clarin())
+    jameson = JJJameson(FiubaWeb(), Clarin())
 
-    updater.dispatcher.add_handler(CommandHandler('noticias', peter.conseguir_noticias, Filters.chat_type.groups))
+    updater.dispatcher.add_handler(CommandHandler('noticias', jameson.conseguir_noticias, Filters.chat_type.groups))
 
     try:
         updater.start_polling()
