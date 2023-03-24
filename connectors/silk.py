@@ -1,4 +1,5 @@
 import requests as requests
+import dateparser as dp
 from bs4 import BeautifulSoup
 from connectors.fiuba_web import FiubaWeb
 from error_handler import logging
@@ -7,7 +8,8 @@ from exceptions.cantidad_noticias_exception import CantidadNoticiasMaximaExcepti
 
 DOMINIO = "https://fi.uba.ar"
 LINK_NOTICIAS = DOMINIO + "/noticias/pagina/1"
-DIV_CLASS = "font-light text-lg leading-relaxed border-b border-border-soft-color pb-8 mb-6"
+DIV_CLASS_DESCRIPCION = "font-light text-lg leading-relaxed border-b border-border-soft-color pb-8 mb-6"
+DIV_CLASS_FECHA = "mt-4 lg:mt-0 text-gray-500 text-xs uppercase"
 INICIO_TITULO = 8
 MAX_NOTICIAS = 16
 
@@ -36,12 +38,14 @@ class Silk(FiubaWeb):
         pagina = requests.get(url)
         soup = BeautifulSoup(pagina.content, 'html.parser')
 
-        resultado = soup.find('div', class_=DIV_CLASS)
+        resultado = soup.find('div', class_=DIV_CLASS_DESCRIPCION)
         descripcion = resultado.get_text().replace('\n', '')
+        resultado = soup.find('div', class_=DIV_CLASS_FECHA)
+        fecha = dp.parse(resultado.get_text(), date_formats=["%d de %B de %Y, %H.%M"], locales=["es-AR"])
 
         titulo = soup.title.get_text()[INICIO_TITULO:]
 
-        return Noticia(titulo, descripcion, url)
+        return Noticia(titulo, descripcion, fecha, url)
     
     def __validar_cantidad(self, n_noticias: int) -> None:
         if n_noticias <= 0:

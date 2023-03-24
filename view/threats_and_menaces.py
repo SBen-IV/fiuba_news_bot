@@ -12,7 +12,9 @@ class ThreatsAndMenaces(Imprenta):
     def enviar_noticias(self, chat: Chat, noticias: list) -> None:
         self.logger.info("Enviando noticias a {chat_name}.".format(chat_name=chat.title))
 
-        for noticia in reversed(noticias):
+        noticias.sort(key=lambda n: n.fecha)
+
+        for noticia in noticias:
             chat.send_message("<b>" + noticia.titulo + "</b>" + "\n\n" + \
                                noticia.descripcion + "\n\n" + \
                   "<a href= \"" + noticia.url + "\">" + MAS_INFORMACION + "</a>\n",
