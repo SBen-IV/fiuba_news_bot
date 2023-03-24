@@ -1,7 +1,7 @@
 import requests as requests
 from bs4 import BeautifulSoup
 from connectors.fiuba_web import FiubaWeb
-
+from error_handler import logging
 from entities.noticia import Noticia
 
 DOMINIO = "https://fi.uba.ar"
@@ -10,6 +10,9 @@ DIV_CLASS = "font-light text-lg leading-relaxed border-b border-border-soft-colo
 INICIO_TITULO = 8
 
 class Silk(FiubaWeb):
+    def __init__(self):
+        self.logger = logging.getLogger(__class__.__name__)
+
     def obtener_noticias(self,  n: int = 1) -> list:
         page = requests.get(LINK_NOTICIAS)
         soup = BeautifulSoup(page.content, 'html.parser')
@@ -25,7 +28,7 @@ class Silk(FiubaWeb):
     
     def obtener_noticia(self, uri: str) -> Noticia:
         url = DOMINIO + uri
-        print("request a " + url)
+        self.logger.info("Obteniendo noticia de {url}".format(url=url))
         pagina = requests.get(url)
         soup = BeautifulSoup(pagina.content, 'html.parser')
 
