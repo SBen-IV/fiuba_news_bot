@@ -2,7 +2,7 @@ from telegram import Update
 from telegram.ext import CallbackContext
 
 
-class PeterParker:
+class JJJameson:
     def __init__(self, fiuba_web, imprenta):
         self.fiuba_web = fiuba_web
         self.imprenta = imprenta

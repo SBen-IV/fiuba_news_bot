@@ -1,5 +1,5 @@
 import os
-from peter_parker import PeterParker
+from jjjameson import JJJameson
 from fiuba_web import FiubaWeb
 from clarin import Clarin
 
@@ -17,7 +17,7 @@ def main():
 
     updater = Updater(token=os.getenv('BOT_TOKEN'), use_context=True, defaults=defaults)
 
-    peter = PeterParker(FiubaWeb(), Clarin())
+    peter = JJJameson(FiubaWeb(), Clarin())
 
     updater.dispatcher.add_handler(CommandHandler('noticias', peter.conseguir_noticias, Filters.chat_type.groups))
 
