@@ -1,23 +1,20 @@
 import os
 from controllers.jjjameson import JJJameson
 from connectors.silk import Silk
-from view.clarin import Clarin
+from view.threats_and_menaces import ThreatsAndMenaces
 
 from dotenv import load_dotenv
 
 if os.path.exists('.env'):
     load_dotenv()
 
-from telegram import ParseMode
-from telegram.ext import Updater, Filters, CommandHandler, Defaults
+from telegram.ext import Updater, Filters, CommandHandler
     
 
 def main():
-    defaults = Defaults(parse_mode=ParseMode.HTML)
+    updater = Updater(token=os.getenv('BOT_TOKEN'), use_context=True)
 
-    updater = Updater(token=os.getenv('BOT_TOKEN'), use_context=True, defaults=defaults)
-
-    jameson = JJJameson(Silk(), Clarin())
+    jameson = JJJameson(Silk(), ThreatsAndMenaces())
 
     updater.dispatcher.add_handler(CommandHandler('noticias', jameson.conseguir_noticias, Filters.chat_type.groups))
 
