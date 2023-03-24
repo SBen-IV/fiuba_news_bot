@@ -1,6 +1,6 @@
 import os
 from controllers.jjjameson import JJJameson
-from connectors.fiuba_web import FiubaWeb
+from connectors.silk import Silk
 from view.clarin import Clarin
 
 from dotenv import load_dotenv
@@ -17,7 +17,7 @@ def main():
 
     updater = Updater(token=os.getenv('BOT_TOKEN'), use_context=True, defaults=defaults)
 
-    jameson = JJJameson(FiubaWeb(), Clarin())
+    jameson = JJJameson(Silk(), Clarin())
 
     updater.dispatcher.add_handler(CommandHandler('noticias', jameson.conseguir_noticias, Filters.chat_type.groups))
 
