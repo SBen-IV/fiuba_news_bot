@@ -2,15 +2,14 @@ import os
 from controllers.jjjameson import JJJameson
 from connectors.silk import Silk
 from view.threats_and_menaces import ThreatsAndMenaces
-from error_handler import error_handler, logger
-
+from error_handler import error_handler, logging
+from telegram.ext import Updater, Filters, CommandHandler
 from dotenv import load_dotenv
 
 if os.path.exists('.env'):
     load_dotenv()
 
-from telegram.ext import Updater, Filters, CommandHandler
-    
+logger = logging.getLogger('main')
 
 def main():
     updater = Updater(token=os.getenv('BOT_TOKEN'), use_context=True)

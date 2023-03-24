@@ -10,6 +10,7 @@ class ThreatsAndMenaces(Imprenta):
         logger.info("Enviando noticias a {chat_name}.".format(chat_name=chat.title))
 
         for noticia in noticias:
-            chat.send_message("<b>" + noticia.titulo + "</b>" + "\n\n" + noticia.descripcion + "\n\n" + \
+            chat.send_message("<b>" + noticia.titulo + "</b>" + "\n\n" + \
+                               noticia.descripcion + "\n\n" + \
                   "<a href= \"" + noticia.url + "\">" + MAS_INFORMACION + "</a>\n",
                   parse_mode=ParseMode.HTML)
