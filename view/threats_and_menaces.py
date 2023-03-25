@@ -6,6 +6,7 @@ from emoji import emojize
 from error_handler import logging
 
 MAS_INFORMACION = emojize(":information: Más información")
+FORMATO_MENSAJE = "<b>{titulo}</b>\n\n{descripcion}\n\n<a href=\"{url}\">{texto_url}</a>\n"
 
 class ThreatsAndMenaces(Imprenta):
     def __init__(self):
@@ -17,9 +18,10 @@ class ThreatsAndMenaces(Imprenta):
         noticias.sort(key=lambda n: n.fecha)
 
         for noticia in noticias:
-            chat.send_message("<b>" + noticia.titulo + "</b>" + "\n\n" + \
-                               noticia.descripcion + "\n\n" + \
-                  "<a href= \"" + noticia.url + "\">" + MAS_INFORMACION + "</a>\n",
+            chat.send_message(FORMATO_MENSAJE.format(titulo=noticia.titulo,
+                                                     descripcion=noticia.descripcion,
+                                                     url=noticia.url,
+                                                     texto_url=MAS_INFORMACION),
                   parse_mode=ParseMode.HTML)
             
             time.sleep(delay)
