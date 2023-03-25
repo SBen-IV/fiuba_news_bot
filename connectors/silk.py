@@ -10,6 +10,7 @@ DOMINIO = "https://fi.uba.ar"
 LINK_NOTICIAS = DOMINIO + "/noticias/pagina/1"
 DIV_CLASS_DESCRIPCION = "font-light text-lg leading-relaxed border-b border-border-soft-color pb-8 mb-6"
 DIV_CLASS_FECHA = "mt-4 lg:mt-0 text-gray-500 text-xs uppercase"
+FORMATO_FECHA = "%d de %B de %Y, %H:%M"
 INICIO_TITULO = 8
 MAX_NOTICIAS = 16
 
@@ -41,7 +42,9 @@ class Silk(FiubaWeb):
         resultado = soup.find('div', class_=DIV_CLASS_DESCRIPCION)
         descripcion = resultado.get_text().replace('\n', '')
         resultado = soup.find('div', class_=DIV_CLASS_FECHA)
-        fecha = dp.parse(resultado.get_text(), date_formats=["%d de %B de %Y, %H.%M"], locales=["es-AR"])
+        fecha = dp.parse(resultado.get_text().replace('.', ':'), date_formats=[FORMATO_FECHA], languages=['es'], locales=["es-AR"])
+        self.logger.info("fecha {fecha}".format(fecha=fecha))
+        self.logger.info("text {fecha}".format(fecha=resultado.get_text()))
 
         titulo = soup.title.get_text()[INICIO_TITULO:]
 

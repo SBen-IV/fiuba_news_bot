@@ -2,12 +2,14 @@ from telegram import Update
 from telegram.ext import CallbackContext
 from connectors.fiuba_web import FiubaWeb
 from view.imprenta import Imprenta
+from repositories.noticias_repository import NoticiasRepository
 from error_handler import logging
 from exceptions.cantidad_noticias_exception import CantidadNoticiasNoEsNumeroException
 
 class JJJameson:
-    def __init__(self, fiuba_web: FiubaWeb, imprenta: Imprenta):
+    def __init__(self, fiuba_web: FiubaWeb, repo: NoticiasRepository, imprenta: Imprenta):
         self.fiuba_web = fiuba_web
+        self.repo = repo
         self.imprenta = imprenta
         self.noticias_automaticas = False
         self.job = None
@@ -33,7 +35,7 @@ class JJJameson:
 
     def activar_noticias_automaticas(self, update: Update, context: CallbackContext):
         if self.noticias_automaticas == False:
-            self.job = context.job_queue.run_repeating(self.conseguir_noticias_automatico, 60)
+            self.job = context.job_queue.run_repeating(self.conseguir_noticias_automatico, 60, context=update.effective_chat)
             self.noticias_automaticas = True
             self.logger.info("Se activaron las noticias automaticas.")
             update.effective_chat.send_message("Se activaron las noticias automaticas.")
@@ -51,4 +53,15 @@ class JJJameson:
             update.effective_chat.send_message("Las noticias automaticas no estan activadas.")
 
     def conseguir_noticias_automatico(self, context: CallbackContext):
-        pass
+        ultima_noticia_guardada = self.repo.ultima_noticia()
+        ultimas_noticias = self.fiuba_web.obtener_noticias(15)
+
+        self.logger.info("fecha de ultima noticia {titulo} es {fecha}.".format(titulo=ultima_noticia_guardada.titulo, fecha=ultima_noticia_guardada.fecha))
+
+        nuevas_noticias = []
+        for noticia in ultimas_noticias:
+            if noticia.fecha > ultima_noticia_guardada.fecha:
+                self.logger.info("fecha de noticia {titulo} es {fecha}".format(titulo=noticia.titulo, fecha=noticia.fecha))
+                nuevas_noticias.append(noticia)
+        
+        self.imprenta.enviar_noticias(context.job.context, nuevas_noticias)

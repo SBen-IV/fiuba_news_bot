@@ -2,6 +2,7 @@ import os
 from controllers.jjjameson import JJJameson
 from connectors.silk import Silk
 from view.threats_and_menaces import ThreatsAndMenaces
+from repositories.noticias_repository import NoticiasRepository
 from error_handler import error_handler, logging
 from telegram.ext import Updater, Filters, CommandHandler
 from dotenv import load_dotenv
@@ -18,7 +19,7 @@ def main():
 
     logger.info("Iniciando {full_name} (@{username}).".format(full_name=bot.full_name, username=bot.username))
 
-    jameson = JJJameson(Silk(), ThreatsAndMenaces())
+    jameson = JJJameson(Silk(), NoticiasRepository(), ThreatsAndMenaces())
 
     updater.dispatcher.add_handler(CommandHandler('noticias', jameson.conseguir_noticias, Filters.chat_type.groups))
     updater.dispatcher.add_handler(CommandHandler('empezar', jameson.activar_noticias_automaticas, Filters.chat_type.groups))
