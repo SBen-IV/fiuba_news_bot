@@ -21,10 +21,11 @@ def main():
     logger.info("Iniciando {full_name} (@{username}).".format(full_name=bot.full_name, username=bot.username))
 
     jameson = JJJameson(Silk(), NoticiasRepository(), ThreatsAndMenaces())
+    filtro = Filters.chat(chat_id=int(os.getenv('ID_GRUPO_NOTICIAS')))
 
-    updater.dispatcher.add_handler(CommandHandler('noticias', jameson.conseguir_noticias, Filters.chat_type.groups))
-    updater.dispatcher.add_handler(CommandHandler('empezar', jameson.activar_noticias_automaticas, Filters.chat_type.groups))
-    updater.dispatcher.add_handler(CommandHandler('terminar', jameson.desactivar_noticias_automaticas, Filters.chat_type.groups))
+    updater.dispatcher.add_handler(CommandHandler('noticias', jameson.conseguir_noticias, filtro))
+    updater.dispatcher.add_handler(CommandHandler('empezar', jameson.activar_noticias_automaticas, filtro))
+    updater.dispatcher.add_handler(CommandHandler('terminar', jameson.desactivar_noticias_automaticas, filtro))
     updater.dispatcher.add_error_handler(error_handler)
 
     try:
