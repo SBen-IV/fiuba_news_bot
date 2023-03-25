@@ -64,4 +64,7 @@ class JJJameson:
                 self.logger.info("fecha de noticia {titulo} es {fecha}".format(titulo=noticia.titulo, fecha=noticia.fecha))
                 nuevas_noticias.append(noticia)
         
+        if len(nuevas_noticias) > 0:
+            self.repo.guardar(max(nuevas_noticias, key=lambda n: n.fecha))
+        
         self.imprenta.enviar_noticias(context.job.context, nuevas_noticias)
