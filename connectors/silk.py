@@ -1,5 +1,6 @@
 import requests as requests
 import dateparser as dp
+
 from bs4 import BeautifulSoup
 from connectors.fiuba_web import FiubaWeb
 from error_handler import logging
@@ -42,9 +43,11 @@ class Silk(FiubaWeb):
         resultado = soup.find('div', class_=DIV_CLASS_DESCRIPCION)
         descripcion = resultado.get_text().replace('\n', '')
         resultado = soup.find('div', class_=DIV_CLASS_FECHA)
-        fecha = dp.parse(resultado.get_text().replace('.', ':'), date_formats=[FORMATO_FECHA], languages=['es'], locales=["es-AR"])
-        self.logger.info("fecha {fecha}".format(fecha=fecha))
-        self.logger.info("text {fecha}".format(fecha=resultado.get_text()))
+        fecha = dp.parse(resultado.get_text().replace('.', ':'),
+          date_formats=[FORMATO_FECHA],
+          languages=['es'],
+          locales=["es-AR"],
+          settings={'TIMEZONE': 'UTC'})
 
         titulo = soup.title.get_text()[INICIO_TITULO:]
 

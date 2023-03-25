@@ -1,3 +1,5 @@
+import os
+
 from telegram import Update
 from telegram.ext import CallbackContext
 from connectors.fiuba_web import FiubaWeb
@@ -5,6 +7,10 @@ from view.imprenta import Imprenta
 from repositories.noticias_repository import NoticiasRepository
 from error_handler import logging
 from exceptions.cantidad_noticias_exception import CantidadNoticiasNoEsNumeroException
+
+
+ID_CANAL_NOTICIAS = os.getenv('ID_CANAL_NOTICIAS')
+INTERVALO_MENSAJES_AUTOMATICOS = 3*60*60 # En segundos
 
 class JJJameson:
     def __init__(self, fiuba_web: FiubaWeb, repo: NoticiasRepository, imprenta: Imprenta):
@@ -28,14 +34,14 @@ class JJJameson:
 
             self.logger.info("Se consiguieron {n_noticias} noticias.".format(n_noticias=len(noticias)))
 
-            self.imprenta.enviar_noticias(update.effective_chat, noticias)
+            self.imprenta.enviar_noticias(update.effective_chat, noticias, 30)
         except ValueError:
             self.logger.warn("Cantidad de noticias no es numero {arg}".format(arg=context.args[0]))
             raise CantidadNoticiasNoEsNumeroException(arg=context.args[0])
 
     def activar_noticias_automaticas(self, update: Update, context: CallbackContext):
         if self.noticias_automaticas == False:
-            self.job = context.job_queue.run_repeating(self.conseguir_noticias_automatico, 60, context=update.effective_chat)
+            self.job = context.job_queue.run_repeating(self.conseguir_noticias_automatico, INTERVALO_MENSAJES_AUTOMATICOS, context=context.bot.get_chat(ID_CANAL_NOTICIAS))
             self.noticias_automaticas = True
             self.logger.info("Se activaron las noticias automaticas.")
             update.effective_chat.send_message("Se activaron las noticias automaticas.")
@@ -67,4 +73,4 @@ class JJJameson:
         if len(nuevas_noticias) > 0:
             self.repo.guardar(max(nuevas_noticias, key=lambda n: n.fecha))
         
-        self.imprenta.enviar_noticias(context.job.context, nuevas_noticias)
+        self.imprenta.enviar_noticias(context.job.context, nuevas_noticias, 30)
