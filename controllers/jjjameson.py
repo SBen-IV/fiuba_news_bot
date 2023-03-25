@@ -34,7 +34,7 @@ class JJJameson:
 
             self.logger.info("Se consiguieron {n_noticias} noticias.".format(n_noticias=len(noticias)))
 
-            self.imprenta.enviar_noticias(update.effective_chat, noticias, 30)
+            self.imprenta.enviar_noticias(update.effective_chat, noticias)
         except ValueError:
             self.logger.warn("Cantidad de noticias no es numero {arg}".format(arg=context.args[0]))
             raise CantidadNoticiasNoEsNumeroException(arg=context.args[0])

@@ -11,7 +11,7 @@ class ThreatsAndMenaces(Imprenta):
     def __init__(self):
         self.logger = logging.getLogger(__class__.__name__)
 
-    def enviar_noticias(self, chat: Chat, noticias: list, delay: int = 0) -> None:
+    def enviar_noticias(self, chat: Chat, noticias: list, delay: int = 1) -> None:
         self.logger.info("Enviando noticias a {chat_name}.".format(chat_name=chat.title))
 
         noticias.sort(key=lambda n: n.fecha)
