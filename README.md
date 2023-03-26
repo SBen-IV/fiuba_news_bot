@@ -7,6 +7,7 @@ Es necesario un archivo .env con los siguientes campos:
 BOT_TOKEN= # Token del bot
 DEV_ID= # ID del desarrollador, para enviar stacktrace en caso de errores
 ID_CANAL_NOTICIAS= # ID del canal de noticias en el cual se envian los mensaje automáticos
+ID_GRUPO_NOTICIAS= # ID del grupo de noticias en el cual se maneja al bot
 ```
 
 ## Prerequisitos
