@@ -34,10 +34,9 @@ class JJJameson:
 
             self.logger.info("Se consiguieron {n_noticias} noticias.".format(n_noticias=len(noticias)))
 
-            self.logger.info("ID chat: {id}".format(id=update.effective_chat.id))
             self.imprenta.enviar_noticias(update.effective_chat, noticias)
         except ValueError:
-            self.logger.warn("Cantidad de noticias no es numero {arg}".format(arg=context.args[0]))
+            self.logger.warn("Cantidad de noticias no es número {arg}".format(arg=context.args[0]))
             raise CantidadNoticiasNoEsNumeroException(arg=context.args[0])
 
     def activar_noticias_automaticas(self, update: Update, context: CallbackContext):
@@ -45,30 +44,30 @@ class JJJameson:
             self.job = context.job_queue.run_repeating(self.conseguir_noticias_automatico, INTERVALO_MENSAJES_AUTOMATICOS, context=context.bot.get_chat(ID_CANAL_NOTICIAS))
             self.noticias_automaticas = True
             self.logger.info("Se activaron las noticias automaticas.")
-            update.effective_chat.send_message("Se activaron las noticias automaticas.")
+            update.effective_chat.send_message("Se activaron las noticias automáticas.")
         else:
-            update.effective_chat.send_message("Las noticias automaticas ya estan activadas.")
+            update.effective_chat.send_message("Las noticias automáticas ya estan activadas.")
             
 
     def desactivar_noticias_automaticas(self, update: Update, context: CallbackContext):
         if self.noticias_automaticas == True:
             self.job.schedule_removal()
             self.noticias_automaticas = False
-            self.logger.info("Se desactivaron las noticias automaticas.")
-            update.effective_chat.send_message("Se desactivaron las noticias automaticas.")
+            self.logger.info("Se desactivaron las noticias automáticas.")
+            update.effective_chat.send_message("Se desactivaron las noticias automáticas.")
         else:
-            update.effective_chat.send_message("Las noticias automaticas no estan activadas.")
+            update.effective_chat.send_message("Las noticias automáticas no estan activadas.")
 
     def conseguir_noticias_automatico(self, context: CallbackContext):
         ultima_noticia_guardada = self.repo.ultima_noticia()
         ultimas_noticias = self.fiuba_web.obtener_noticias(15)
 
-        self.logger.info("fecha de ultima noticia {titulo} es {fecha}.".format(titulo=ultima_noticia_guardada.titulo, fecha=ultima_noticia_guardada.fecha))
+        self.logger.info("Fecha de ultima noticia {titulo} es {fecha}.".format(titulo=ultima_noticia_guardada.titulo, fecha=ultima_noticia_guardada.fecha))
 
         nuevas_noticias = []
         for noticia in ultimas_noticias:
             if noticia.fecha > ultima_noticia_guardada.fecha:
-                self.logger.info("fecha de noticia {titulo} es {fecha}".format(titulo=noticia.titulo, fecha=noticia.fecha))
+                self.logger.info("Fecha de noticia {titulo} es {fecha}".format(titulo=noticia.titulo, fecha=noticia.fecha))
                 nuevas_noticias.append(noticia)
         
         if len(nuevas_noticias) > 0:
