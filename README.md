@@ -30,9 +30,10 @@ pipenv run python3.8 main.py
 
 ## TODOs
 
-- [ ] Ver cómo cambiar las noticias automáticas para hacer menos pegadas a la página (método que reciba una fecha y devuelva sólo noticias posteriores).
+- [x] Ver cómo cambiar las noticias automáticas para hacer menos pegadas a la página (método que reciba una fecha y devuelva sólo noticias posteriores).
 - [ ] Agregar método para convertir una url de una noticia.
 - [ ] Agregar archivo config para variables como delay, intervalo entre mensajes, etc.
 - [ ] Agregar script para correr en "dev" y "prod".
 - [ ] Agregar comando /status, /estado o /info que devuelva el estado del bot
 - [ ] Agregar /version (?)
+- [ ] Agregar tests

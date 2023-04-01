@@ -1,3 +1,4 @@
+from tkinter.tix import MAX
 import requests as requests
 import dateparser as dp
 
@@ -22,10 +23,7 @@ class Silk(FiubaWeb):
     def obtener_noticias(self,  n_noticias: int = 1) -> list:
         self.__validar_cantidad(n_noticias)
 
-        page = requests.get(LINK_NOTICIAS)
-        soup = BeautifulSoup(page.content, 'html.parser')
-
-        uris_noticias = list(map(lambda x: x.get('href'), soup.select(".noticia > a")))
+        uris_noticias = self.__obtener_uri_noticias()
 
         noticias = []
 
@@ -53,8 +51,29 @@ class Silk(FiubaWeb):
 
         return Noticia(titulo, descripcion, fecha, url)
     
+    def obtener_noticias_nuevas(self, ultima_noticia: Noticia) -> list:
+        uris_noticias = self.__obtener_uri_noticias()
+
+        noticias_nuevas = []
+
+        for uri in uris_noticias[:MAX_NOTICIAS]:
+            noticia = self.obtener_noticia(uri)
+            
+            if noticia.fecha > ultima_noticia.fecha:
+                noticias_nuevas.append(noticia)
+            else:
+                break
+
+        return noticias_nuevas
+    
+    def __obtener_uri_noticias(self) -> list:
+        page = requests.get(LINK_NOTICIAS)
+        soup = BeautifulSoup(page.content, 'html.parser')
+
+        return list(map(lambda x: x.get('href'), soup.select(".noticia > a")))
+    
     def __validar_cantidad(self, n_noticias: int) -> None:
         if n_noticias <= 0:
             raise CantidadNoticiasNegativaException(n_noticias)
-        elif n_noticias >= MAX_NOTICIAS:
+        elif n_noticias > MAX_NOTICIAS:
             raise CantidadNoticiasMaximaException(n_noticias)

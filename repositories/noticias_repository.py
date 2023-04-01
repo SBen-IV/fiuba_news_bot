@@ -27,7 +27,7 @@ class NoticiasRepository:
         with open(self.path, 'w', encoding='utf-8') as f:
             json.dump(noticia_json, f, indent=4)
 
-        self.logger.info("Guardado {noticia}.".format(noticia=noticia_json))
+        self.logger.info("Guardada {noticia}.".format(noticia=noticia_json))
         
         return noticia
 

@@ -29,10 +29,10 @@ class JJJameson:
             if len(context.args) < 1:
                 noticias = self.fiuba_web.obtener_noticias()
             else:
-                n_noticias = int(context.args[0])
-                noticias = self.fiuba_web.obtener_noticias(n_noticias)
+                cant_noticias = int(context.args[0])
+                noticias = self.fiuba_web.obtener_noticias(cant_noticias)
 
-            self.logger.info("Se consiguieron {n_noticias} noticias.".format(n_noticias=len(noticias)))
+            self.logger.info("Se consiguieron {cant_noticias} noticias.".format(cant_noticias=len(noticias)))
 
             self.imprenta.enviar_noticias(update.effective_chat, noticias)
         except ValueError:
@@ -49,7 +49,7 @@ class JJJameson:
             update.effective_chat.send_message("Las noticias automáticas ya estan activadas.")
             
 
-    def desactivar_noticias_automaticas(self, update: Update, context: CallbackContext):
+    def desactivar_noticias_automaticas(self, update: Update, _: CallbackContext):
         if self.noticias_automaticas == True:
             self.job.schedule_removal()
             self.noticias_automaticas = False
@@ -60,17 +60,13 @@ class JJJameson:
 
     def conseguir_noticias_automatico(self, context: CallbackContext):
         ultima_noticia_guardada = self.repo.ultima_noticia()
-        ultimas_noticias = self.fiuba_web.obtener_noticias(15)
-
-        self.logger.info("Fecha de ultima noticia {titulo} es {fecha}.".format(titulo=ultima_noticia_guardada.titulo, fecha=ultima_noticia_guardada.fecha))
-
-        nuevas_noticias = []
-        for noticia in ultimas_noticias:
-            if noticia.fecha > ultima_noticia_guardada.fecha:
-                self.logger.info("Fecha de noticia {titulo} es {fecha}".format(titulo=noticia.titulo, fecha=noticia.fecha))
-                nuevas_noticias.append(noticia)
+        self.logger.info("Fecha de última noticia {titulo} es {fecha}.".format(titulo=ultima_noticia_guardada.titulo, fecha=ultima_noticia_guardada.fecha))
         
+        nuevas_noticias = self.fiuba_web.obtener_noticias_nuevas(ultima_noticia_guardada)
+
         if len(nuevas_noticias) > 0:
+            self.logger.info("Hay {cant_noticias} noticias nuevas.".format(cant_noticias=len(nuevas_noticias)))
             self.repo.guardar(max(nuevas_noticias, key=lambda n: n.fecha))
-        
-        self.imprenta.enviar_noticias(context.job.context, nuevas_noticias, 30)
+            self.imprenta.enviar_noticias(context.job.context, nuevas_noticias, 30)
+        else:
+            self.logger.info("No hay noticias nuevas.")
