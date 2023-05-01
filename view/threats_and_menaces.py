@@ -8,6 +8,7 @@ from error_handler import logging
 MAS_INFORMACION = emojize(":information: Más información")
 FORMATO_MENSAJE = "<b>{titulo}</b>\n\n{descripcion}\n\n<a href=\"{url}\">{texto_url}</a>\n"
 
+
 class ThreatsAndMenaces(Imprenta):
     def __init__(self):
         self.logger = logging.getLogger(__class__.__name__)
