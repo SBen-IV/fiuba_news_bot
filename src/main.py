@@ -25,8 +25,10 @@ def main():
     filtro = Filters.chat(chat_id=int(os.getenv('ID_GRUPO_NOTICIAS')))
 
     updater.dispatcher.add_handler(CommandHandler('noticias', jameson.conseguir_noticias, filtro))
+    updater.dispatcher.add_handler(CommandHandler('convertir_noticia', jameson.convertir_noticia, filtro))
     updater.dispatcher.add_handler(CommandHandler('empezar', jameson.activar_noticias_automaticas, filtro))
     updater.dispatcher.add_handler(CommandHandler('terminar', jameson.desactivar_noticias_automaticas, filtro))
+    updater.dispatcher.add_handler(CommandHandler('ayuda', jameson.ayuda, filtro))
     updater.dispatcher.add_handler(CommandHandler('estado', jameson.estado, filtro))
     updater.dispatcher.add_error_handler(error_handler)
 

@@ -47,6 +47,9 @@ class JJJameson:
             self.logger.warn("Cantidad de noticias no es número {arg}".format(arg=context.args[0]))
             raise CantidadNoticiasNoEsNumeroException(arg=context.args[0])
 
+    def convertir_noticia(self, update: Update, context: CallbackContext):
+        update.effective_chat.send_message("Trabajando en esta feature...")
+
     def __activar_noticias_automaticas(self, job_queue, chat):
         self.job = job_queue.run_repeating(self.conseguir_noticias_automatico, INTERVALO_MENSAJES_AUTOMATICOS, context=chat)
 
@@ -85,3 +88,11 @@ class JJJameson:
 
     def estado(self, update: Update, _: CallbackContext):
         update.effective_chat.send_message("Noticias automáticas: {noticias_automaticas}".format(noticias_automaticas=self.noticias_automaticas))
+
+    def ayuda(self, update: Update, context: CallbackContext):
+        update.effective_chat.send_message("/noticias <n> - trae las últimas noticias\n"
+                                           + "/convertir_noticia <url> - convierte la noticia\n" 
+                                           + "/empezar - \n"
+                                           + "/terminar - \n"
+                                           + "/estado - \n"
+                                           + "/ayuda - imprime este mensaje\n")
