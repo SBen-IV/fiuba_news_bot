@@ -14,7 +14,6 @@ if os.path.exists('.env'):
 
 logger = logging.getLogger('main')
 
-
 def main():
     updater = Updater(token=os.getenv('BOT_TOKEN'), use_context=True)
 

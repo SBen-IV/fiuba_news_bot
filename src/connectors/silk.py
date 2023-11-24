@@ -1,4 +1,3 @@
-from tkinter.tix import MAX
 import requests as requests
 import dateparser as dp
 

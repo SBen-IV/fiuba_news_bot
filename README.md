@@ -28,6 +28,17 @@ pipenv --python 3.8
 pipenv run python3.8 main.py
 ```
 
+## Dev
+
+Se agregó un Dockerfile que emula el ambiente de prod para usar en dev. Se puede usar docker o bien docker compose:
+
+```sh
+docker build . -t fiuba_news_bot:latest
+docker run fiuba_news_bot:latest
+
+docker compose up # hace el build si es necesario y run
+```
+
 ## TODOs
 
 - [x] Ver cómo cambiar las noticias automáticas para hacer menos pegadas a la página (método que reciba una fecha y devuelva sólo noticias posteriores).

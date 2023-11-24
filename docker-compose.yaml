@@ -1,0 +1,5 @@
+services:
+  fiuba_news_bot:
+    build: .
+    image: "fiuba_news_bot:latest"
+    container_name: "fiuba_news_bot"
