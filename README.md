@@ -19,6 +19,7 @@ ID_GRUPO_NOTICIAS= # ID del grupo de noticias en el cual se maneja al bot
 Para instalar el entorno virtual con los paquetes:
 
 ```sh
+pipenv install -r requirements.txt
 pipenv --python 3.8
 ```
 
@@ -36,7 +37,7 @@ Se agregó un Dockerfile que emula el ambiente de prod para usar en dev. Se pued
 docker build . -t fiuba_news_bot:latest
 docker run fiuba_news_bot:latest
 
-docker compose up # hace el build si es necesario y run
+docker compose up --build # hace el build si es necesario y run
 ```
 
 ## TODOs
@@ -44,7 +45,7 @@ docker compose up # hace el build si es necesario y run
 - [x] Ver cómo cambiar las noticias automáticas para hacer menos pegadas a la página (método que reciba una fecha y devuelva sólo noticias posteriores).
 - [ ] Agregar método para convertir una url de una noticia.
 - [ ] Agregar archivo config para variables como delay, intervalo entre mensajes, etc.
-- [ ] Agregar script para correr en "dev" y "prod".
-- [ ] Agregar comando /status, /estado o /info que devuelva el estado del bot
+- [x] Agregar script para correr en "dev" y "prod".
+- [x] Agregar comando /status, /estado o /info que devuelva el estado del bot
 - [ ] Agregar /version (?)
 - [ ] Agregar tests

@@ -1,16 +1,17 @@
 FROM ubuntu:xenial AS build
 
 RUN apt-get update && apt-get upgrade -y && apt-get dist-upgrade -y &&\
- apt-get install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget -y
+    apt-get install build-essential zlib1g-dev libncurses5-dev libgdbm-dev\
+    libnss3-dev libssl-dev libreadline-dev libffi-dev wget -y
 
-ARG PYTHON_VERSION=3.8.16
+ENV PYTHON_VERSION=3.8.16
 
-RUN mkdir ~/tmp && cd ~/tmp && wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz &&\
-tar -xvzf Python-${PYTHON_VERSION}.tgz && cd Python-${PYTHON_VERSION} && ./configure --with-ensurepip=install && make altinstall
+RUN mkdir ~/tmp && cd ~/tmp && \
+    wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz &&\
+    tar -xvzf Python-${PYTHON_VERSION}.tgz &&\
+    cd Python-${PYTHON_VERSION} && ./configure --with-ensurepip=install && make altinstall
 
 RUN pip3.8 install pipenv
-
-RUN useradd -ms /bin/bash fiuba_news
 
 WORKDIR /fiuba_news_bot
 
