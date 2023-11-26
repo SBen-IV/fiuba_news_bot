@@ -43,7 +43,7 @@ docker compose up --build # hace el build si es necesario y run
 ## TODOs
 
 - [x] Ver cómo cambiar las noticias automáticas para hacer menos pegadas a la página (método que reciba una fecha y devuelva sólo noticias posteriores).
-- [ ] Agregar método para convertir una url de una noticia.
+- [x] Agregar método para convertir una url de una noticia.
 - [ ] Agregar archivo config para variables como delay, intervalo entre mensajes, etc.
 - [x] Agregar script para correr en "dev" y "prod".
 - [x] Agregar comando /status, /estado o /info que devuelva el estado del bot

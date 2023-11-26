@@ -4,6 +4,7 @@ from telegram import Update
 from telegram.ext import CallbackContext
 from connectors.fiuba_web import FiubaWeb
 from view.imprenta import Imprenta
+from view.interno import Interno
 from repositories.noticias_repository import NoticiasRepository
 from repositories.estado_repository import EstadoRepository
 from error_handler import logging
@@ -15,11 +16,12 @@ INTERVALO_MENSAJES_AUTOMATICOS = 3*60*60  # En segundos
 
 
 class JJJameson:
-    def __init__(self, fiuba_web: FiubaWeb, noticias_repo: NoticiasRepository, estado_repo: EstadoRepository, imprenta: Imprenta, job_queue, bot):
+    def __init__(self, fiuba_web: FiubaWeb, noticias_repo: NoticiasRepository, estado_repo: EstadoRepository, imprenta: Imprenta, interno: Interno, job_queue, bot):
         self.fiuba_web = fiuba_web
         self.repo = noticias_repo
         self.estado_repo = estado_repo
         self.imprenta = imprenta
+        self.interno = interno
         self.noticias_automaticas = self.estado_repo.noticias_automaticas()
 
         if self.noticias_automaticas:
@@ -48,7 +50,9 @@ class JJJameson:
             raise CantidadNoticiasNoEsNumeroException(arg=context.args[0])
 
     def convertir_noticia(self, update: Update, context: CallbackContext):
-        update.effective_chat.send_message("Trabajando en esta feature...")
+        if len(context.args) > 0:
+            noticia = self.fiuba_web.obtener_noticia(context.args[0])
+            self.interno.enviar_noticia(update.effective_chat, noticia)
 
     def __activar_noticias_automaticas(self, job_queue, chat):
         self.job = job_queue.run_repeating(self.conseguir_noticias_automatico, INTERVALO_MENSAJES_AUTOMATICOS, context=chat)
@@ -59,9 +63,9 @@ class JJJameson:
             self.noticias_automaticas = True
             self.estado_repo.guardar(self.noticias_automaticas)
             self.logger.info("Se activaron las noticias automáticas.")
-            update.effective_chat.send_message("Se activaron las noticias automáticas.")
+            self.interno.notificar_noticias_automaticas(update.effective_chat, self.noticias_automaticas)
         else:
-            update.effective_chat.send_message("Las noticias automáticas ya están activadas.")
+            self.interno.notificar_noticias_automaticas(update.effective_chat, self.noticias_automaticas, self.noticias_automaticas)
 
     def desactivar_noticias_automaticas(self, update: Update, _: CallbackContext):
         if self.noticias_automaticas:
@@ -69,9 +73,9 @@ class JJJameson:
             self.noticias_automaticas = False
             self.estado_repo.guardar(self.noticias_automaticas)
             self.logger.info("Se desactivaron las noticias automáticas.")
-            update.effective_chat.send_message("Se desactivaron las noticias automáticas.")
+            self.interno.notificar_noticias_automaticas(update.effective_chat, self.noticias_automaticas, True)
         else:
-            update.effective_chat.send_message("Las noticias automáticas no están activadas.")
+            self.interno.notificar_noticias_automaticas(update.effective_chat)
 
     def conseguir_noticias_automatico(self, context: CallbackContext):
         ultima_noticia_guardada = self.repo.ultima_noticia()
@@ -87,12 +91,7 @@ class JJJameson:
             self.logger.info("No hay noticias nuevas.")
 
     def estado(self, update: Update, _: CallbackContext):
-        update.effective_chat.send_message("Noticias automáticas: {noticias_automaticas}".format(noticias_automaticas=self.noticias_automaticas))
+        self.interno.notificar_estado(update.effective_chat, self.noticias_automaticas)
 
     def ayuda(self, update: Update, context: CallbackContext):
-        update.effective_chat.send_message("/noticias <n> - trae las últimas noticias\n"
-                                           + "/convertir_noticia <url> - convierte la noticia\n" 
-                                           + "/empezar - \n"
-                                           + "/terminar - \n"
-                                           + "/estado - \n"
-                                           + "/ayuda - imprime este mensaje\n")
+        self.interno.ayuda(update.effective_chat)

@@ -6,6 +6,7 @@ import os
 from telegram import Update, ParseMode
 from telegram.ext import CallbackContext
 from exceptions.cantidad_noticias_exception import *
+from exceptions.url_incorrecta_exception import *
 
 logging.basicConfig(format='[%(asctime)s] [%(levelname)s] [%(name)s] [%(funcName)s] %(message)s', level=logging.INFO,
                     datefmt="%d/%m/%Y | %H:%M:%S")
@@ -20,7 +21,7 @@ def error_handler(update: Update, context: CallbackContext) -> None:
     """
     logger.error(msg="Exception while handling an update:", exc_info=context.error)
 
-    if isinstance(context.error, CantidadNoticiasException):
+    if isinstance(context.error, CantidadNoticiasException) or isinstance(context.error, URLNoPerteneceADominioException):
         update.effective_chat.send_message(context.error.message)
     else:
 

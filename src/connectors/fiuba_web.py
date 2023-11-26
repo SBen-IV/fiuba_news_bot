@@ -12,3 +12,7 @@ class FiubaWeb(ABC):
     @abstractclassmethod
     def obtener_noticias_nuevas(self, ultima_noticia: Noticia) -> list:
         pass
+
+    @abstractclassmethod
+    def obtener_noticia(self, url: str) -> Noticia:
+        pass

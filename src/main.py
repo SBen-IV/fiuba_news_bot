@@ -3,6 +3,7 @@ import os
 from controllers.jjjameson import JJJameson
 from connectors.silk import Silk
 from view.threats_and_menaces import ThreatsAndMenaces
+from view.cindy_moon import CindyMoon
 from repositories.noticias_repository import NoticiasRepository
 from repositories.estado_repository import EstadoRepository
 from error_handler import error_handler, logging
@@ -21,11 +22,11 @@ def main():
 
     logger.info("Iniciando {full_name} (@{username}).".format(full_name=bot.full_name, username=bot.username))
 
-    jameson = JJJameson(Silk(), NoticiasRepository(), EstadoRepository(), ThreatsAndMenaces(), updater.job_queue, updater.bot)
+    jameson = JJJameson(Silk(), NoticiasRepository(), EstadoRepository(), ThreatsAndMenaces(), CindyMoon(), updater.job_queue, updater.bot)
     filtro = Filters.chat(chat_id=int(os.getenv('ID_GRUPO_NOTICIAS')))
 
     updater.dispatcher.add_handler(CommandHandler('noticias', jameson.conseguir_noticias, filtro))
-    updater.dispatcher.add_handler(CommandHandler('convertir_noticia', jameson.convertir_noticia, filtro))
+    updater.dispatcher.add_handler(CommandHandler('convertir', jameson.convertir_noticia, filtro))
     updater.dispatcher.add_handler(CommandHandler('empezar', jameson.activar_noticias_automaticas, filtro))
     updater.dispatcher.add_handler(CommandHandler('terminar', jameson.desactivar_noticias_automaticas, filtro))
     updater.dispatcher.add_handler(CommandHandler('ayuda', jameson.ayuda, filtro))

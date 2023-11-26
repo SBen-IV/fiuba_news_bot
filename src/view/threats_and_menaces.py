@@ -2,12 +2,8 @@ import time
 
 from view.imprenta import Imprenta
 from telegram import ParseMode, Chat
-from emoji import emojize
 from error_handler import logging
-
-MAS_INFORMACION = emojize(":information: Más información")
-FORMATO_MENSAJE = "<b>{titulo}</b>\n\n{descripcion}\n\n<a href=\"{url}\">{texto_url}</a>\n"
-
+from view.contants import *
 
 class ThreatsAndMenaces(Imprenta):
     def __init__(self):

@@ -6,6 +6,7 @@ from connectors.fiuba_web import FiubaWeb
 from error_handler import logging
 from entities.noticia import Noticia
 from exceptions.cantidad_noticias_exception import CantidadNoticiasMaximaException, CantidadNoticiasNegativaException
+from exceptions.url_incorrecta_exception import URLNoPerteneceADominioException
 
 DOMINIO = "https://fi.uba.ar"
 LINK_NOTICIAS = DOMINIO + "/noticias/pagina/1"
@@ -28,11 +29,15 @@ class Silk(FiubaWeb):
         noticias = []
 
         for uri in uris_noticias[:n_noticias]:
-            noticias.append(self.obtener_noticia(uri))
+            noticias.append(self.__obtener_noticia(uri))
 
         return noticias
 
-    def obtener_noticia(self, uri: str) -> Noticia:
+    def obtener_noticia(self, url: str) -> Noticia:
+        uri = self.__obtener_uri(url)
+        return self.__obtener_noticia(uri)
+
+    def __obtener_noticia(self, uri: str) -> Noticia:
         url = DOMINIO + uri
         self.logger.info("Obteniendo noticia de {url}".format(url=url))
         pagina = requests.get(url)
@@ -57,7 +62,7 @@ class Silk(FiubaWeb):
         noticias_nuevas = []
 
         for uri in uris_noticias[:MAX_NOTICIAS]:
-            noticia = self.obtener_noticia(uri)
+            noticia = self.__obtener_noticia(uri)
 
             if noticia.fecha > ultima_noticia.fecha:
                 noticias_nuevas.append(noticia)
@@ -77,3 +82,9 @@ class Silk(FiubaWeb):
             raise CantidadNoticiasNegativaException(n_noticias)
         elif n_noticias > MAX_NOTICIAS:
             raise CantidadNoticiasMaximaException(n_noticias)
+
+    def __obtener_uri(self, url: str) -> str:
+        if url.startswith(DOMINIO) and len(url) > len(DOMINIO):
+            return url[len(DOMINIO):]
+        
+        raise URLNoPerteneceADominioException(DOMINIO, url)
